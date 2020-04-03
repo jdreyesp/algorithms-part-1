@@ -1,7 +1,6 @@
 package week2;
 
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
@@ -15,8 +14,6 @@ public class Deque<Item> implements Iterable<Item> {
         private Item item;
         private Node<Item> next;
         private Node<Item> prev;
-
-        public Node() {}
 
         public Node(Node<Item> prev, Item item, Node<Item> next) {
             this.prev = prev;
@@ -121,10 +118,12 @@ public class Deque<Item> implements Iterable<Item> {
         deque.addLast("World");
         deque.addLast("World");
 
+        System.out.println(deque.size());
         deque.removeFirst();
         deque.removeFirst();
         deque.removeLast();
         deque.removeLast();
+        System.out.println(deque.size());
 
         Iterator<String> iterator = deque.iterator();
 
@@ -135,7 +134,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     }
 
-    private class DequeIterator implements ListIterator<Item> {
+    private class DequeIterator implements Iterator<Item> {
         private Node<Item> lastReturned;
         private Node<Item> next = first;
         private int nextIndex;
@@ -155,36 +154,8 @@ public class Deque<Item> implements Iterable<Item> {
             return lastReturned.item;
         }
 
-        public boolean hasPrevious() {
-            return nextIndex > 0;
-        }
-
-        public Item previous() {
-
-            if (!hasPrevious())
-                throw new NoSuchElementException();
-
-            lastReturned = next = (next == null) ? last : next.prev;
-            nextIndex--;
-            return lastReturned.item;
-        }
-
-        public int nextIndex() {
-            return nextIndex;
-        }
-
-        public int previousIndex() {
-            return nextIndex - 1;
-        }
-
         public void remove() {
             throw new UnsupportedOperationException();
-        }
-
-        public void set(Item e) {
-        }
-
-        public void add(Item e) {
         }
 
     }
