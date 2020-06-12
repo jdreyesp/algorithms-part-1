@@ -37,7 +37,7 @@ public class Board {
         for (int i = 0; i < dimension(); i ++) {
             for (int j = 0; j < dimension(); j++) {
                 if(tiles[i][j] == 0) continue;
-                else if(tiles[i][j] != i + j + 1) outOfPlace++;
+                else if(tiles[i][j] != i * dimension() + j + 1) outOfPlace++;
             }
         }
         return outOfPlace;
@@ -154,10 +154,13 @@ public class Board {
         final Board b = new Board(new int[][] {{1, 2, 3}, {0, 7, 8}, {4, 5, 6}});
         final Board b2 = new Board(new int[][] {{1, 2, 3}, {0, 7, 8}, {4, 5, 6}});
         final Board b3 = new Board(new int[][] {{1, 2, 3}, {6, 0, 8}, {4, 5, 7}});
+        final Board goalBoard = new Board(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}});
 
         System.out.println(b.toString());
         System.out.println("Hamming: " + b.hamming());
         System.out.println("Manhattan: " + b.manhattan());
+
+        System.out.println("Hamming goal: " + goalBoard.hamming());
 
         System.out.println("Equal boards: Equals=" + b.equals(b2));
         System.out.println("Not equal boards: Equals=" + b.equals(b3));

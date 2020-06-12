@@ -30,10 +30,13 @@ public class Solver {
     }
 
     private final MinPQ<GameBoard> leafNodes;
+    private Iterable<Board> solution;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException();
+
+        solution = new ArrayList<>();
 
         leafNodes = new MinPQ();
         int manhattan = initial.manhattan();
@@ -41,25 +44,37 @@ public class Solver {
     }
 
     // is the initial board solvable? (see below)
-    public boolean isSolvable() {return solution() != null;}
+    public boolean isSolvable() {
+        if(solution == null) return false;
+        else initializeSolution();
+        return solution != null;
+    }
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        int moves = ((List<Board>)solution()).size();
-        return moves == 0 ? -1 : moves;
+        if(solution == null) return -1;
+        else initializeSolution();
+        return solution == null ? -1 : ((List<Board>)solution).size();
+    }
+
+    private Iterable<Board> initializeSolution() {
+        if(!solution.iterator().hasNext()) {
+            synchronized (solution) {
+                solution = calculateSolution(leafNodes, new ArrayList<>());
+            }
+        }
+        return solution;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        List<Board> boardSequence = new ArrayList<>();
-
-        return calculateSolution(leafNodes, boardSequence);
+        return solution;
     }
 
     private List<Board> calculateSolution(MinPQ<GameBoard> leafNodes, List<Board> boardSequence) {
         final GameBoard minPriorityGameBoard;
         try {
-            minPriorityGameBoard = (GameBoard) leafNodes.delMin();
+            minPriorityGameBoard = leafNodes.delMin();
         } catch (NoSuchElementException e){
             return null;
         }
@@ -70,7 +85,7 @@ public class Solver {
 
         for(Board neighbor : minPriorityGameBoard.board.neighbors()) {
             int distance = neighbor.manhattan();
-            int moves = minPriorityGameBoard.moves ++;
+            int moves = minPriorityGameBoard.moves + 1;
             if(!neighbor.equals(minPriorityGameBoard.board)) {
                 leafNodes.insert(new GameBoard(neighbor, distance, moves, distance + moves));
             }
@@ -98,7 +113,7 @@ public class Solver {
         if (!solver.isSolvable())
             StdOut.println("No solution possible");
         else {
-            StdOut.println("Minimum number of moves = " + solver.moves());
+            StdOut.println("Minimum number of moves = " + (solver.moves() - 1));
             for (Board board : solver.solution())
                 StdOut.println(board);
         }
