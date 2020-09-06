@@ -53,6 +53,7 @@ public class KdTree {
         if(p == null) throw new IllegalArgumentException();
         if(isEmpty()) {
             node = new Node(p, null, null, null);
+            return;
         }
 
         NodeInsertion nodeInsertion = findInsertionPoint(p);
@@ -115,14 +116,7 @@ public class KdTree {
 
     // draw all points to standard draw
     public void draw() {
-        StdDraw.enableDoubleBuffering();
-
-        while(true) {
-            StdDraw.clear();
-            drawWithLines(0, new ArrayList<>(), new ArrayList<>());
-            StdDraw.show();
-            StdDraw.pause(40);
-        }
+        drawWithLines(0, new ArrayList<>(), new ArrayList<>());
     }
 
     private void drawWithLines(final int level, List<Point2D> prevPointsX, List<Point2D> prevPointsY) {
@@ -177,18 +171,86 @@ public class KdTree {
 
     }
 //     // all points that are inside the rectangle (or on the boundary)
-//     public Iterable<Point2D> range(RectHV rect) {
-//         if(rect == null) throw new IllegalArgumentException();
-//
-//     }
-//
-//     // a nearest neighbor in the set to point p; null if the set is empty
-//     public Point2D nearest(Point2D p) {
-//         if(p == null) throw new IllegalArgumentException();
-//         if(isEmpty()) return null;
-//
-//
-//     }
+     public Iterable<Point2D> range(RectHV rect) {
+         if(rect == null) throw new IllegalArgumentException();
+         if(isEmpty()) return new ArrayList<>();
+
+         return range_level(0, this, new ArrayList<>(), rect);
+     }
+
+     private Iterable<Point2D> range_level(int level, KdTree t, List<Point2D> acc, RectHV rect) {
+        if(inside_rect(t.node.p.x(), t.node.p.y())) {
+            acc.add(t.node.p);
+            range_level(level + 1, t.node.lb, acc, rect);
+            range_level(level + 1, t.node.rt, acc, rect);
+            return acc;
+        } else {
+            if(level % 2 == 0) {
+                rect.intersects()
+            }
+        }
+     }
+
+     // a nearest neighbor in the set to point p; null if the set is empty
+     public Point2D nearest(Point2D p) {
+         if(p == null) throw new IllegalArgumentException();
+         if(isEmpty()) return null;
+
+         return nearest_level(0, this, p);
+     }
+
+     private Point2D nearest_level(int level, KdTree t, Point2D p) {
+
+        if(level % 2 == 0) {
+            if(p.x() < t.node.p.x()) { //left tree
+                if(t.node.lb == null) {
+                    return t.node.p;
+                } else {
+                    Point2D lt_p = nearest_level(level + 1, t.node.lb, p);
+                    if(lt_p.distanceTo(p) < t.node.p.distanceTo(p)) {
+                        return lt_p;
+                    } else {
+                        return t.node.p;
+                    }
+                }
+            } else { //right tree
+                if(t.node.rt == null) {
+                    return t.node.p;
+                } else {
+                    Point2D rt_p = nearest_level(level + 1, t.node.rt, p);
+                    if(rt_p.distanceTo(p) < t.node.p.distanceTo(p)) {
+                        return rt_p;
+                    } else {
+                        return t.node.p;
+                    }
+                }
+            }
+        } else {
+            if(p.y() < t.node.p.y()) { //left tree
+                if(t.node.lb == null) {
+                    return t.node.p;
+                } else {
+                    Point2D lt_p = nearest_level(level + 1, t.node.lb, p);
+                    if(lt_p.distanceTo(p) < t.node.p.distanceTo(p)) {
+                        return lt_p;
+                    } else {
+                        return t.node.p;
+                    }
+                }
+            } else { //right tree
+                if(t.node.rt == null) {
+                    return t.node.p;
+                } else {
+                    Point2D rt_p = nearest_level(level + 1, t.node.rt, p);
+                    if(rt_p.distanceTo(p) < t.node.p.distanceTo(p)) {
+                        return rt_p;
+                    } else {
+                        return t.node.p;
+                    }
+                }
+            }
+        }
+     }
 
     // unit testing of the methods (optional)
     public static void main(String[] args) {
@@ -203,7 +265,14 @@ public class KdTree {
         System.out.println(kdTree.node.rt.node.lb.node.p);
         System.out.println(kdTree.contains(new Point2D(.3,.2)));
 
-        kdTree.draw();
+        StdDraw.enableDoubleBuffering();
+        while(true) {
+            StdDraw.clear();
+            kdTree.draw();
+            StdDraw.show();
+            StdDraw.pause(20);
+        }
+
 
     }
 }
