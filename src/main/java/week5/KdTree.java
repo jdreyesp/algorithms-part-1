@@ -127,9 +127,6 @@ public class KdTree {
 
     private void drawWithLines(final int level, List<Point2D> prevPointsX, List<Point2D> prevPointsY) {
 
-            //Draw the point
-            node.p.draw();
-
             //Draw the line
             final AtomicReference<Double> line_min_coordinate = new AtomicReference<>(0D);
             final AtomicReference<Double> line_max_coordinate = new AtomicReference<>(1D);
@@ -161,6 +158,11 @@ public class KdTree {
             if(node.lb != null) node.lb.drawWithLines(level + 1, prevPointsX, prevPointsY);
             if(node.rt != null) node.rt.drawWithLines(level + 1, prevPointsX, prevPointsY);
 
+            //Draw the point
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.setPenRadius(0.01);
+            node.p.draw();
+            StdDraw.setPenRadius();
     }
 
     private void drawLine(int level, Point2D point, double min_coordinate, double max_coordinate) {
